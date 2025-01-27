@@ -1,5 +1,6 @@
 ﻿namespace RandomLevelGeneratorDemo;
 
-public class Level
+public class Vec2I
 {
+
 }
