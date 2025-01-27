@@ -10,5 +10,4 @@ namespace RandomLevelGeneratorDemo
     public partial class App : Application
     {
     }
-
 }

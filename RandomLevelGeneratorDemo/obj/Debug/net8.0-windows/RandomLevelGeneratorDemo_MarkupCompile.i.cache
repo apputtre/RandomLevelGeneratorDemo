@@ -1,7 +1,7 @@
 ﻿RandomLevelGeneratorDemo
 1.0.0.0
 
-winexe
+exe
 C#
 .cs
 C:\Users\Revch\src\RandomLevelGeneratorDemo\RandomLevelGeneratorDemo\obj\Debug\net8.0-windows\
@@ -12,7 +12,7 @@ TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 C:\Users\Revch\src\RandomLevelGeneratorDemo\RandomLevelGeneratorDemo\App.xaml
 11407045341
 
-121204098738
+13568084222
 198-352714763
 MainWindow.xaml;
 
