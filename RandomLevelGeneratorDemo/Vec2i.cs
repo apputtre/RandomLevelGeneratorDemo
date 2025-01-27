@@ -1,6 +1,6 @@
 ﻿namespace RandomLevelGeneratorDemo;
 
-public class Vec2i
+public struct Vec2i
 {
     public int X { get; set; }
     public int Y { get; set; }
