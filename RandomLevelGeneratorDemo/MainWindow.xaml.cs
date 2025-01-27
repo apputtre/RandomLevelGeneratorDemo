@@ -24,8 +24,11 @@ public partial class MainWindow : Window
 
     public void OnLoad(object sender, EventArgs e)
     {
+        Vec2i v1 = new(5, 5);
+        Vec2i v2 = new(v1);
+
         LevelBuilder builder = new();
-        TestLevelGenerator generator = new(builder);
+        RandomLevelGenerator generator = new(builder);
         generator.Generate();
         Level level = builder.Level;
         LevelViewer viewer = new(level);
