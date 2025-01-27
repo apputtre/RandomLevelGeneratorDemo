@@ -20,20 +20,19 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-
-        LevelBuilder builder = new();
-        TestLevelGenerator generator = new(builder);
-        generator.Generate();
-        Level level = builder.Level;
-
-        Console.WriteLine(level.Tiles[new Vec2i(0, 0)] == TileType.Wall);
-        Console.WriteLine(level.Tiles[new Vec2i(1, 1)] == TileType.Wall);
-
-        LevelViewer viewer = new(level);
     }
 
     public void OnLoad(object sender, EventArgs e)
     {
-        Console.WriteLine("Loaded");
+        LevelBuilder builder = new();
+        TestLevelGenerator generator = new(builder);
+        generator.Generate();
+        Level level = builder.Level;
+        LevelViewer viewer = new(level);
+
+        Canvas mainCanvas = (Canvas)FindName("MainCanvas");
+
+        mainCanvas.Children.Add(viewer);
+        viewer.Update();
     }
 }
