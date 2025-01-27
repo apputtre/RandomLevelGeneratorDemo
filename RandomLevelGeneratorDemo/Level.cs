@@ -9,6 +9,10 @@ public class Level
     {
     
     }
+    public Level(Level other)
+    {
+        _tiles = new(other._tiles);
+    }
 
     public void SetTile(Vec2i pos, TileType type)
     {
