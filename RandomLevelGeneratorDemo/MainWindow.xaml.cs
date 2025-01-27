@@ -28,5 +28,12 @@ public partial class MainWindow : Window
 
         Console.WriteLine(level.Tiles[new Vec2i(0, 0)] == TileType.Wall);
         Console.WriteLine(level.Tiles[new Vec2i(1, 1)] == TileType.Wall);
+
+        LevelViewer viewer = new(level);
+    }
+
+    public void OnLoad(object sender, EventArgs e)
+    {
+        Console.WriteLine("Loaded");
     }
 }
