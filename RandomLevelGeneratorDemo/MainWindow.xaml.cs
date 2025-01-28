@@ -24,18 +24,15 @@ public partial class MainWindow : Window
 
     public void OnLoad(object sender, EventArgs e)
     {
-        Vec2i v1 = new(5, 5);
-        Vec2i v2 = new(v1);
-
         LevelBuilder builder = new();
         RandomLevelGenerator generator = new(builder);
         generator.Generate();
         Level level = builder.Level;
-        LevelViewer viewer = new(level);
 
-        Canvas mainCanvas = (Canvas)FindName("MainCanvas");
+        LevelViewer levelViewer = (LevelViewer)FindName("Viewer");
 
-        mainCanvas.Children.Add(viewer);
-        viewer.Update();
+        levelViewer.Focus();
+        levelViewer.Level = level;
+        levelViewer.Update();
     }
 }

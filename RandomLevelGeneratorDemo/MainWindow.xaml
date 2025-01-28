@@ -6,5 +6,10 @@
         xmlns:local="clr-namespace:RandomLevelGeneratorDemo"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Loaded="OnLoad">
-    <Canvas Name="MainCanvas" Background="Black"/>
+    <Canvas Background="Black">
+        <local:LevelViewer x:Name="Viewer" Focusable="True"/>
+        <StackPanel Margin="20">
+            <Button Content="Generate" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="150" Height="25"/>
+        </StackPanel>
+    </Canvas>
 </Window>
