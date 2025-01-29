@@ -17,22 +17,60 @@ namespace RandomLevelGeneratorDemo;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private LevelViewer levelViewer;
+    private LevelBuilder levelBuilder;
+    private RandomLevelGenerator levelGenerator;
+
     public MainWindow()
     {
         InitializeComponent();
+
+        levelBuilder = new();
+        levelGenerator = new(levelBuilder);
     }
 
     public void OnLoad(object sender, EventArgs e)
     {
-        LevelBuilder builder = new();
-        RandomLevelGenerator generator = new(builder);
-        generator.Generate();
-        Level level = builder.Level;
+        levelViewer = (LevelViewer)FindName("Viewer");
 
-        LevelViewer levelViewer = (LevelViewer)FindName("Viewer");
+        levelViewer.LevelWidth = levelGenerator.GetParameters().Width;
+        levelViewer.LevelHeight = levelGenerator.GetParameters().Height;
+    }
 
-        levelViewer.Focus();
-        levelViewer.Level = level;
+    private void GenerateButton_Click(object sender, RoutedEventArgs e)
+    {
+        GenerateLevel();
+    }
+
+    private async void GenerateLevel()
+    {
+        Label statusLabel = (Label)FindName("StatusLabel");
+        statusLabel.Content = "Generating...";
+        Button generateButton = (Button)FindName("GenerateButton");
+        generateButton.IsEnabled = false;
+        await Task.Run(() => levelGenerator.Generate());
+        statusLabel.Content = "Done";
+        generateButton.IsEnabled = true;
+        levelViewer.Level = levelBuilder.Level;
         levelViewer.Update();
+    }
+
+    private void LevelWidthSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        levelViewer.LevelWidth = (int) e.NewValue;
+        levelViewer.Update();
+
+        LevelParameters currParams = levelGenerator.GetParameters();
+        LevelParameters newParams = currParams with { Width = (int)e.NewValue };
+        levelGenerator.SetParameters(newParams);
+    }
+    private void LevelHeightSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        levelViewer.LevelHeight = (int) e.NewValue;
+        levelViewer.Update();
+
+        LevelParameters currParams = levelGenerator.GetParameters();
+        LevelParameters newParams = currParams with { Height = (int)e.NewValue };
+        levelGenerator.SetParameters(newParams);
     }
 }

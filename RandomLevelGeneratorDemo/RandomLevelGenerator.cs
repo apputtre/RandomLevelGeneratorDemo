@@ -58,6 +58,7 @@ public class RandomLevelGenerator : LevelGenerator
     private WeightedGraph<int, Vec2i> cells = new();
     private Graph<Region> regions = new();
     private List<Vec2i> roomLeaders = new();
+    private LevelParameters _levelParameters;
 
     private int seed;
 
@@ -67,7 +68,10 @@ public class RandomLevelGenerator : LevelGenerator
         set {seed = value;}
     }
 
-    public RandomLevelGenerator(LevelBuilder builder) : base(builder) { }
+    public RandomLevelGenerator(LevelBuilder builder) : base(builder)
+    {
+        _levelParameters = new(50, 50, 12);
+    }
 
     public override void Generate()
     {
@@ -84,8 +88,8 @@ public class RandomLevelGenerator : LevelGenerator
         regions.Clear();
         roomLeaders.Clear();
 
-        const int level_width = 50;     // width of the level, in tiles, not including perimeter walls
-        const int level_height = 50;    // height of the level, in tiles, not including perimeter walls
+        int level_width = _levelParameters.Width;     // width of the level, in tiles, not including perimeter walls
+        int level_height = _levelParameters.Height;    // height of the level, in tiles, not including perimeter walls
 
         Vec2i top_left = new(0, 0);
         Vec2i bottom_right = top_left + new Vec2i(level_width - 1, level_height - 1);
@@ -121,18 +125,16 @@ public class RandomLevelGenerator : LevelGenerator
         }
 
         // generate the rooms
-        const int min_num_rooms = 10;
-        const int max_num_rooms = 15;
         const int attempts = 50;         // how many times to place a room if initial placement fails
         const int min_room_width = 7;    // minimum width of the room, including walls
         const int min_room_height = 7;   // minimum height of the room, including walls
-        const int max_room_width = 15;   // maximum width of the room, including walls
-        const int max_room_height = 15;  // maximum height of the room, including walls
+        const int max_room_width = 12;   // maximum width of the room, including walls
+        const int max_room_height = 12;  // maximum height of the room, including walls
 
         // fill the level with walls and floors
         FillRectangle(top_left, level_width, level_height);
 
-        int num_rooms = rand.Next(min_num_rooms, max_num_rooms + 1);
+        int num_rooms = _levelParameters.NumRooms;
 
         for (int room = 0; room < num_rooms; ++room)
         {
@@ -290,6 +292,15 @@ public class RandomLevelGenerator : LevelGenerator
                 hall_tiles.Add(t);
             }
         }
+    }
+    public override LevelParameters GetParameters()
+    {
+        return _levelParameters;
+    }
+
+    public override void SetParameters(LevelParameters levelParameters)
+    {
+        _levelParameters = levelParameters;
     }
 
     private Region CreateRectangularRoom(Vec2i pos, int width, int height)

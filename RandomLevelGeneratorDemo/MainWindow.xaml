@@ -6,10 +6,67 @@
         xmlns:local="clr-namespace:RandomLevelGeneratorDemo"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Loaded="OnLoad">
-    <Canvas Background="Black">
+
+    <Window.Resources>
+        <Style TargetType="Slider" x:Key="SliderStyle">
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="IsSnapToTickEnabled" Value="True"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="Black">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
         <local:LevelViewer x:Name="Viewer" Focusable="True"/>
-        <StackPanel Margin="20">
-            <Button Content="Generate" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="150" Height="25"/>
-        </StackPanel>
-    </Canvas>
+        <Grid Width ="200" HorizontalAlignment="Left" VerticalAlignment="Center" Background="White" Margin="40,0">
+            <StackPanel Orientation="Vertical">
+                <Label Content="Parameters" HorizontalAlignment="Center"/>
+                <StackPanel>
+                    <Border Margin="4" BorderThickness="1" BorderBrush="Black">
+                        <StackPanel>
+                            <Label Content="Level Width" HorizontalAlignment="Center"/>
+                                <Grid>
+                                    <Label HorizontalAlignment="Left" Content="0"/>
+                                    <Slider HorizontalAlignment="Stretch" Name="LevelWidthSlider" Margin="20, 10, 20, 10" ValueChanged="LevelWidthSlider_ValueChanged" Style="{StaticResource SliderStyle}" Minimum="0" Maximum="100" TickFrequency="1"/>
+                                    <Label HorizontalAlignment="Right" Content="100"/>
+                                </Grid>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="4" BorderThickness="1" BorderBrush="Black">
+                        <StackPanel>
+                            <Label Content="Level Height" HorizontalAlignment="Center"/>
+                            <Slider Name="LevelHeightSlider" ValueChanged="LevelHeightSlider_ValueChanged" Style="{StaticResource SliderStyle}" Minimum="0" Maximum="100"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="4" BorderThickness="1" BorderBrush="Black">
+                        <StackPanel>
+                            <Label Content="Number of Rooms" HorizontalAlignment="Center"/>
+                            <Slider Style="{StaticResource SliderStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="4" BorderThickness="1" BorderBrush="Black">
+                        <StackPanel>
+                            <Label Content="Seed" HorizontalAlignment="Center"/>
+                            <TextBox Margin="10"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="4" BorderThickness="1" BorderBrush="Black">
+                        <StackPanel>
+                            <Label Content="Method" HorizontalAlignment="Center"/>
+                            <ComboBox Margin="4">
+                                <ComboBoxItem Content="Steiner Tree"/>
+                                <ComboBoxItem Content="Random Spanning Tree"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <Button Grid.Row="0" Name="GenerateButton" Content="Generate" Height="40" Width="150" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="GenerateButton_Click" Margin="40"/>
+        <Label Grid.Row="0" Name="StatusLabel" Content="Status" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="40" FontSize="25"/>
+    </Grid>
 </Window>

@@ -11,4 +11,6 @@ public abstract class LevelGenerator
     }
 
     public abstract void Generate();
+    public abstract void SetParameters(LevelParameters lvlParams);
+    public abstract LevelParameters GetParameters();
 }
