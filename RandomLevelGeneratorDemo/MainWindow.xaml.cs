@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace RandomLevelGeneratorDemo;
 
@@ -66,7 +67,11 @@ public partial class MainWindow : Window
             if (manualSeeding)
                 levelGenerator.NextSeed = int.Parse(seedTextBox.Text);
 
+            Stopwatch timer = new();
+            timer.Start();
             await Task.Run(() => levelGenerator.Generate());
+            timer.Stop();
+            statusLabel.Content = $"Done ({Math.Round(timer.Elapsed.TotalMicroseconds / 1000.0, 2)} ms)";
             levelViewer.Level = levelBuilder.Level;
             levelViewer.UpdateLevelView();
             seedTextBox.Text = levelGenerator.Seed.ToString();
@@ -76,8 +81,8 @@ public partial class MainWindow : Window
         catch(Exception e)
         {
             MessageBox.Show("A level generation error has occurred.");
+            statusLabel.Content = "Done";
         }
-        statusLabel.Content = "Done";
         generateButton.IsEnabled = true;
     }
 
