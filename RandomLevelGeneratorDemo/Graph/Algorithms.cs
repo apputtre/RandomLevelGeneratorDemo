@@ -40,6 +40,9 @@ namespace CSGraph
                 // find the node in to_visit which has the least cost path from the start node
                 V next = to_visit.Extract();
 
+                if (costs[next] == int.MaxValue)
+                    return;
+
                 foreach (V neighbor in g.GetNeighbors(next))
                 {
                     int neighborCost = g.GetEdgeData(next, neighbor);

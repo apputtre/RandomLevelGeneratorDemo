@@ -94,6 +94,9 @@ public class RandomLevelGenerator : LevelGenerator
         Vec2i top_left = new(0, 0);
         Vec2i bottom_right = top_left + new Vec2i(level_width - 1, level_height - 1);
 
+        if (top_left == bottom_right)
+            return;
+
         // initialize the graph and set up the connections between adjacent vertices
         {
             List<Vec2i> prev_row = null;
@@ -142,9 +145,11 @@ public class RandomLevelGenerator : LevelGenerator
             {
                 int w = rand.Next(min_room_width, max_room_width + 1);
                 int h = rand.Next(min_room_height, max_room_height + 1);
-                int x = rand.Next(top_left.X + 1, (bottom_right.X - 1 - w));
-                int y = rand.Next(top_left.Y + 1, (bottom_right.Y - 1 - h));
+                int x = rand.Next(top_left.X + 1, bottom_right.X - 1);
+                int y = rand.Next(top_left.Y + 1, bottom_right.Y - 1);
 
+                if (x + w > level_width || y + h > level_height)
+                    continue;
 
                 if (!DoesOverlap(new Vec2i(x, y), w, h))
                 {
@@ -212,7 +217,7 @@ public class RandomLevelGenerator : LevelGenerator
                     foreach (Edge<Vec2i, int> edge in cells.GetEdges(tile))
                     {
                         // if the connections leads to a vertex outside of the room, keep it
-                        if (builder.HasWall(edge.To) && !room.Contains(edge.To))
+                        if (!room.Contains(edge.To))
                             continue;
                         // if the connection leads to a floor vertex inside of the room, reassign it to the leader
                         else if (!builder.HasWall(edge.To) && room.Contains(edge.To))
@@ -257,6 +262,10 @@ public class RandomLevelGenerator : LevelGenerator
                     if (roomLeader1 != roomLeader2 && !gRouteCosts.ContainsEdge(roomLeader1, roomLeader2))
                     {
                         CSGraph.Algorithms.Dijkstra(cells, roomLeader1, out var costs, out var routes);
+
+                        if (costs[roomLeader2] == int.MaxValue)
+                            throw new Exception();
+
                         gRouteCosts.AddEdge(roomLeader1, roomLeader2, costs[roomLeader2]);
                         List<Vec2i> path = CSGraph.Algorithms.ShortestPath(routes, roomLeader2);
                         gRoutes.AddEdge(roomLeader1, roomLeader2, path);
