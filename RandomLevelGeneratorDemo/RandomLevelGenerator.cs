@@ -60,12 +60,24 @@ public class RandomLevelGenerator : LevelGenerator
     private List<Vec2i> roomLeaders = new();
     private LevelParameters _levelParameters;
 
-    private int seed;
+    private int _seed;
+    private int? _nextSeed;
 
+    /*
+    The seed used to generate the most recently generated level.
+     */
     public int Seed
     {
-        get => seed;
-        set {seed = value;}
+        get => _seed;
+    }
+
+    /*
+    The seed that will be used to generate the last level.
+     */
+    public int? NextSeed
+    {
+        get => _nextSeed;
+        set { _nextSeed = value; }
     }
 
     public RandomLevelGenerator(LevelBuilder builder) : base(builder)
@@ -75,7 +87,19 @@ public class RandomLevelGenerator : LevelGenerator
 
     public override void Generate()
     {
-        rand = new();
+        if (_nextSeed == null)
+        {
+            Random r = new();
+            _seed = r.Next();
+            rand = new(_seed);
+        }
+        else
+        {
+            _seed = (int) _nextSeed;
+            rand = new((int) _nextSeed);
+        }
+
+        _nextSeed = rand.Next();
 
         builder.Clear();
 

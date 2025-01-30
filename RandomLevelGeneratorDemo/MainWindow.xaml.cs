@@ -50,11 +50,18 @@ public partial class MainWindow : Window
         statusLabel.Content = "Generating...";
         Button generateButton = (Button)FindName("GenerateButton");
         generateButton.IsEnabled = false;
-        await Task.Run(() => levelGenerator.Generate());
+        try
+        {
+            await Task.Run(() => levelGenerator.Generate());
+            levelViewer.Level = levelBuilder.Level;
+            levelViewer.UpdateLevelView();
+        }
+        catch(Exception e)
+        {
+            MessageBox.Show("Level generation error");
+        }
         statusLabel.Content = "Done";
         generateButton.IsEnabled = true;
-        levelViewer.Level = levelBuilder.Level;
-        levelViewer.UpdateLevelView();
     }
 
     private void LevelWidthSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
