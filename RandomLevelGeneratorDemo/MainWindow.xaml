@@ -43,7 +43,7 @@
                     <Border Margin="4" BorderThickness="1" BorderBrush="Black">
                         <StackPanel>
                             <Label Content="Number of Rooms" HorizontalAlignment="Center"/>
-                            <Slider Style="{StaticResource SliderStyle}"/>
+                            <Slider Style="{StaticResource SliderStyle}" ValueChanged="NumRoomsSlider_ValueChanged" Minimum="0" Maximum="100"/>
                         </StackPanel>
                     </Border>
                     <Border Margin="4" BorderThickness="1" BorderBrush="Black">

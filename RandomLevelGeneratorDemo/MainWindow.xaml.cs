@@ -99,6 +99,13 @@ public partial class MainWindow : Window
         levelGenerator.SetParameters(newParams);
     }
 
+    private void NumRoomsSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        LevelParameters currParams = levelGenerator.GetParameters();
+        LevelParameters newParams = currParams with { NumRooms = (int)e.NewValue };
+        levelGenerator.SetParameters(newParams);
+    }
+
     private void SeedTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         if (!IsLoaded)
