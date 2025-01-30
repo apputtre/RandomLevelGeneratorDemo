@@ -115,10 +115,12 @@ public class RandomLevelGenerator : LevelGenerator
         int level_width = _levelParameters.Width;     // width of the level, in tiles, not including perimeter walls
         int level_height = _levelParameters.Height;    // height of the level, in tiles, not including perimeter walls
 
+        // Coordinates of the top-left tile of the perimeter wall enclosing the level
         Vec2i top_left = new(0, 0);
-        Vec2i bottom_right = top_left + new Vec2i(level_width - 1, level_height - 1);
+        // Coordinates of the bottom-right tile of the perimeter wall enclosing the level
+        Vec2i bottom_right = new Vec2i(top_left.X + level_width + 1, top_left.Y + level_height + 1);
 
-        if (top_left == bottom_right)
+        if (bottom_right.X - top_left.X <= 0 || bottom_right.Y - top_left.Y <= 0)
             return;
 
         // initialize the graph and set up the connections between adjacent vertices
@@ -169,8 +171,8 @@ public class RandomLevelGenerator : LevelGenerator
             {
                 int w = rand.Next(min_room_width, max_room_width + 1);
                 int h = rand.Next(min_room_height, max_room_height + 1);
-                int x = rand.Next(top_left.X + 1, bottom_right.X - 1);
-                int y = rand.Next(top_left.Y + 1, bottom_right.Y - 1);
+                int x = rand.Next(top_left.X + 1, bottom_right.X);
+                int y = rand.Next(top_left.Y + 1, bottom_right.Y);
 
                 if (x + w > level_width || y + h > level_height)
                     continue;
@@ -185,6 +187,9 @@ public class RandomLevelGenerator : LevelGenerator
                 }
             }
         }
+
+        if (rooms.Count <= 1)
+            return;
 
         foreach (Region room in rooms)
         {
