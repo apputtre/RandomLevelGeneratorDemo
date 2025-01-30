@@ -35,6 +35,8 @@ public partial class MainWindow : Window
 
         levelViewer.LevelWidth = levelGenerator.GetParameters().Width;
         levelViewer.LevelHeight = levelGenerator.GetParameters().Height;
+
+        levelViewer.UpdateViewBorder();
     }
 
     private void GenerateButton_Click(object sender, RoutedEventArgs e)
@@ -52,22 +54,23 @@ public partial class MainWindow : Window
         statusLabel.Content = "Done";
         generateButton.IsEnabled = true;
         levelViewer.Level = levelBuilder.Level;
-        levelViewer.Update();
+        levelViewer.UpdateLevelView();
     }
 
     private void LevelWidthSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         levelViewer.LevelWidth = (int) e.NewValue;
-        levelViewer.Update();
+        levelViewer.UpdateViewBorder();
 
         LevelParameters currParams = levelGenerator.GetParameters();
         LevelParameters newParams = currParams with { Width = (int)e.NewValue };
         levelGenerator.SetParameters(newParams);
     }
+
     private void LevelHeightSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         levelViewer.LevelHeight = (int) e.NewValue;
-        levelViewer.Update();
+        levelViewer.UpdateViewBorder();
 
         LevelParameters currParams = levelGenerator.GetParameters();
         LevelParameters newParams = currParams with { Height = (int)e.NewValue };

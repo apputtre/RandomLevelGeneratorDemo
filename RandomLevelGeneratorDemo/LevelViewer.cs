@@ -16,10 +16,11 @@ public class LevelViewer : FrameworkElement
     private Level? _level;
     private Vec2d _cameraPos;
     private double _zoom = 1f;
-    private double _zoomVelocity = 0.1f;
     private long _lastInputUpdateTicks;
     private double _cameraVelocity = 200;
     private BitmapImage _tileset;
+    private DrawingVisual levelView = new();
+    private DrawingVisual viewBorder = new();
 
     public const int TileHeight = 8;
     public const int TileWidth = 8;
@@ -30,7 +31,9 @@ public class LevelViewer : FrameworkElement
 
     public LevelViewer(Level? level)
     {
-        _children = new VisualCollection(this);
+        _children = new(this);
+        _children.Add(levelView);
+        _children.Add(viewBorder);
         _level = level;
         _tileset = new BitmapImage(new Uri("C:\\Users\\Revch\\src\\RandomLevelGeneratorDemo\\RandomLevelGeneratorDemo\\assets\\tileset.png", UriKind.Relative));
 
@@ -40,16 +43,11 @@ public class LevelViewer : FrameworkElement
         _lastInputUpdateTicks = DateTime.Now.Ticks;
         inputTimer.Start();
     }
-    public LevelViewer() : this(null)
-    {
-    }
+    public LevelViewer() : this(null) {}
 
-    public void Update()
+    public void UpdateLevelView()
     {
-        _children.Clear();
-
-        DrawingVisual visual = new();
-        DrawingContext context = visual.RenderOpen();
+        DrawingContext context = levelView.RenderOpen();
 
         foreach (Vec2i tile in _level.Tiles.Keys)
         {
@@ -63,6 +61,14 @@ public class LevelViewer : FrameworkElement
                 DrawFloor(context, new Vec2d(r.X, r.Y));
         }
 
+
+        context.Close();
+    }
+
+    public void UpdateViewBorder()
+    {
+        DrawingContext context = viewBorder.RenderOpen();
+
         double borderThickness = 4;
         context.DrawLine(new Pen(Brushes.Red, borderThickness), new(0 - borderThickness/2, 0 - borderThickness/2), new(0 - borderThickness/2, LevelHeight * TileHeight + borderThickness/2));
         context.DrawLine(new Pen(Brushes.Red, borderThickness), new(0 - borderThickness, LevelHeight * TileHeight + borderThickness/2), new(LevelWidth * TileWidth + borderThickness/2, LevelHeight * TileHeight + borderThickness/2));
@@ -70,8 +76,8 @@ public class LevelViewer : FrameworkElement
         context.DrawLine(new Pen(Brushes.Red, borderThickness), new(LevelWidth * TileWidth + borderThickness/2, 0 - borderThickness/2), new(0 - borderThickness, 0 - borderThickness/2));
 
         context.Close();
-        _children.Add(visual);
     }
+
     private void CheckInput(object? sender, EventArgs e)
     {
         long currentTicks = DateTime.Now.Ticks;
@@ -101,13 +107,9 @@ public class LevelViewer : FrameworkElement
     protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
         if (e.Delta > 0)
-        {
             _zoom += _zoom * 0.05;
-        }
         else if (e.Delta < 0)
-        {
             _zoom -= _zoom * 0.05;
-        }
     }
 
     private Rect TransformTile(Vec2i tile)
