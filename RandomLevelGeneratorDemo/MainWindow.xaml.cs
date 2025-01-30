@@ -22,6 +22,7 @@ public partial class MainWindow : Window
     private LevelBuilder levelBuilder;
     private RandomLevelGenerator levelGenerator;
     private TextBox seedTextBox;
+    private bool manualSeeding = false;
 
     public MainWindow()
     {
@@ -44,6 +45,13 @@ public partial class MainWindow : Window
 
     private void GenerateButton_Click(object sender, RoutedEventArgs e)
     {
+        if (manualSeeding)
+            if (seedTextBox.Text == string.Empty)
+            {
+                MessageBox.Show("Please enter a seed or select auto seeding mode.");
+                return;
+            }
+
         GenerateLevel();
     }
 
@@ -55,6 +63,9 @@ public partial class MainWindow : Window
         generateButton.IsEnabled = false;
         try
         {
+            if (manualSeeding)
+                levelGenerator.NextSeed = int.Parse(seedTextBox.Text);
+
             await Task.Run(() => levelGenerator.Generate());
             levelViewer.Level = levelBuilder.Level;
             levelViewer.UpdateLevelView();
@@ -90,6 +101,9 @@ public partial class MainWindow : Window
 
     private void SeedTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
+        if (!IsLoaded)
+            return;
+
         string text = seedTextBox.Text;
         string strippedText = Regex.Replace(text, "[^0-9]", "");
 
@@ -98,5 +112,23 @@ public partial class MainWindow : Window
             seedTextBox.Text = strippedText;
             MessageBox.Show("Seeds must include only numeric characters.");
         }
+    }
+
+    private void AutoSeedingSelected(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded)
+            return;
+
+        manualSeeding = false;
+        seedTextBox.IsReadOnly = true;
+    }
+
+    private void ManualSeedingSelected(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded)
+            return;
+
+        manualSeeding = true;
+        seedTextBox.IsReadOnly = false;
     }
 }

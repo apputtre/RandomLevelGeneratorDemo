@@ -49,7 +49,16 @@
                     <Border Margin="4" BorderThickness="1" BorderBrush="Black">
                         <StackPanel>
                             <Label Content="Seed" HorizontalAlignment="Center"/>
-                            <TextBox TextChanged="SeedTextBox_TextChanged" Name="SeedTextBox" Margin="10"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <Label Content="Mode: "/>
+                                <ComboBox HorizontalAlignment="Left" Width="75">
+                                    <ComboBoxItem Content="Auto" IsSelected="True" Selected="AutoSeedingSelected"/>
+                                    <ComboBoxItem Content="Manual" Selected="ManualSeedingSelected"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <Grid>
+                                <TextBox Name="SeedTextBox" IsReadOnly="True" TextChanged="SeedTextBox_TextChanged" Margin="10"/>
+                            </Grid>
                         </StackPanel>
                     </Border>
                     <Border Margin="4" BorderThickness="1" BorderBrush="Black">
