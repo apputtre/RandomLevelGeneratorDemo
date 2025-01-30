@@ -245,14 +245,14 @@ public class RandomLevelGenerator : LevelGenerator
 
                     foreach (Edge<Vec2i, int> edge in cells.GetEdges(tile))
                     {
-                        // if the connections leads to a vertex outside of the room, keep it
+                        // if the connection leads to a vertex outside of the room, keep it
                         if (!room.Contains(edge.To))
                             continue;
                         // if the connection leads to a floor vertex inside of the room, reassign it to the leader
                         else if (!builder.HasWall(edge.To) && room.Contains(edge.To))
                         {
                             cells.RemoveVertex(edge.To);
-                            cells.AddEdge(tile, leader);
+                            cells.AddEdge(tile, leader, 1);
                         }
                         // otherwise, sever the edge
                         else

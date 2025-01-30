@@ -70,6 +70,8 @@ public partial class MainWindow : Window
             levelViewer.Level = levelBuilder.Level;
             levelViewer.UpdateLevelView();
             seedTextBox.Text = levelGenerator.Seed.ToString();
+            Console.WriteLine($"Level Width: {levelGenerator.GetParameters().Width}");
+            Console.WriteLine($"Level Height: {levelGenerator.GetParameters().Height}");
         }
         catch(Exception e)
         {
