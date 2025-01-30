@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Text.RegularExpressions;
 
 namespace RandomLevelGeneratorDemo;
 
@@ -20,6 +21,7 @@ public partial class MainWindow : Window
     private LevelViewer levelViewer;
     private LevelBuilder levelBuilder;
     private RandomLevelGenerator levelGenerator;
+    private TextBox seedTextBox;
 
     public MainWindow()
     {
@@ -32,6 +34,7 @@ public partial class MainWindow : Window
     public void OnLoad(object sender, EventArgs e)
     {
         levelViewer = (LevelViewer)FindName("Viewer");
+        seedTextBox = (TextBox)FindName("SeedTextBox");
 
         levelViewer.LevelWidth = levelGenerator.GetParameters().Width;
         levelViewer.LevelHeight = levelGenerator.GetParameters().Height;
@@ -55,10 +58,11 @@ public partial class MainWindow : Window
             await Task.Run(() => levelGenerator.Generate());
             levelViewer.Level = levelBuilder.Level;
             levelViewer.UpdateLevelView();
+            seedTextBox.Text = levelGenerator.Seed.ToString();
         }
         catch(Exception e)
         {
-            MessageBox.Show("Level generation error");
+            MessageBox.Show("A level generation error has occurred.");
         }
         statusLabel.Content = "Done";
         generateButton.IsEnabled = true;
@@ -82,5 +86,17 @@ public partial class MainWindow : Window
         LevelParameters currParams = levelGenerator.GetParameters();
         LevelParameters newParams = currParams with { Height = (int)e.NewValue };
         levelGenerator.SetParameters(newParams);
+    }
+
+    private void SeedTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        string text = seedTextBox.Text;
+        string strippedText = Regex.Replace(text, "[^0-9]", "");
+
+        if (text != strippedText)
+        {
+            seedTextBox.Text = strippedText;
+            MessageBox.Show("Seeds must include only numeric characters.");
+        }
     }
 }
