@@ -35,6 +35,11 @@ public struct Vec2d
         }
     }
 
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
+    }
+
     public static Vec2d operator+(Vec2d v1, Vec2d v2)
     {
         return new(v1.X + v2.X, v1.Y + v2.Y);

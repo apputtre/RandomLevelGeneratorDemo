@@ -21,6 +21,8 @@ public class LevelViewer : FrameworkElement
     private BitmapImage _tileset;
     private DrawingVisual levelView = new();
     private DrawingVisual viewBorder = new();
+    private List<CroppedBitmap> _wallTiles = new();
+    private List<CroppedBitmap> _floorTiles = new();
 
     public const int TileHeight = 8;
     public const int TileWidth = 8;
@@ -35,7 +37,26 @@ public class LevelViewer : FrameworkElement
         _children.Add(levelView);
         _children.Add(viewBorder);
         _level = level;
-        _tileset = new BitmapImage(new Uri("C:\\Users\\Revch\\src\\RandomLevelGeneratorDemo\\RandomLevelGeneratorDemo\\assets\\tileset.png", UriKind.Relative));
+
+        Uri tilesetUri = new Uri("C:\\Users\\Revch\\src\\RandomLevelGeneratorDemo\\RandomLevelGeneratorDemo\\assets\\tileset.png");
+        _tileset = new BitmapImage(tilesetUri);
+
+        for (int i = 0; i < 6; ++i)
+        {
+            _wallTiles.Add(new (_tileset, new Int32Rect(
+                32 * i,
+                0,
+                32,
+                32
+             )));
+
+            _floorTiles.Add(new (_tileset, new Int32Rect(
+                32 * i,
+                32,
+                32,
+                32
+             )));
+        }
 
         DispatcherTimer inputTimer = new DispatcherTimer();
         inputTimer.Tick += new EventHandler(CheckInput);
@@ -60,7 +81,6 @@ public class LevelViewer : FrameworkElement
             else if (_level.Tiles[tile] == TileType.Floor)
                 DrawFloor(context, new Vec2d(r.X, r.Y));
         }
-
 
         context.Close();
     }
@@ -131,7 +151,9 @@ public class LevelViewer : FrameworkElement
     private void DrawWall(DrawingContext context, Vec2d pos)
     {
         Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
+        context.DrawRectangle(Brushes.DarkGray, null, r);
 
+        /*
         ImageBrush brush = new(_tileset);
         brush.ViewboxUnits = BrushMappingMode.Absolute;
 
@@ -147,12 +169,24 @@ public class LevelViewer : FrameworkElement
 
         brush.Viewbox = new Rect((int) dipX, (int) dipY, (int) dipW, (int) dipH);
 
-        context.DrawRectangle(brush, null, r);
+        CroppedBitmap bitmapImage = new(_tileset,new Int32Rect(0, 0, 32, 32));
+        */
+
+        //brush.Viewbox = _wallTiles[rand.Next(6)];
+
+        //context.DrawRectangle(brush, null, r);
+        /*
+        Random rand = new();
+        int idx = rand.Next(6);
+        context.DrawImage(_wallTiles[idx], r);
+        */
     }
     private void DrawFloor(DrawingContext context, Vec2d pos)
     {
         Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
+        context.DrawRectangle(Brushes.LightGray, null, r);
 
+        /*
         ImageBrush brush = new(_tileset);
         brush.ViewboxUnits = BrushMappingMode.Absolute;
 
@@ -169,6 +203,7 @@ public class LevelViewer : FrameworkElement
         brush.Viewbox = new Rect(dipX, dipY, dipW, dipH);
 
         context.DrawRectangle(brush, null, r);
+        */
     }
 
     protected override int VisualChildrenCount => _children.Count;

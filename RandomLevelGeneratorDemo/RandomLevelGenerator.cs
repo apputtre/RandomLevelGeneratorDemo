@@ -55,7 +55,7 @@ public class RandomLevelGenerator : LevelGenerator
     private List<Region> halls = new();
     private List<Region> rooms = new();
 
-    private WeightedGraph<int, Vec2i> cells = new();
+    private Graph<Vec2i> cells = new();
     private Graph<Region> regions = new();
     private List<Vec2i> roomLeaders = new();
     private LevelParameters _levelParameters;
@@ -140,14 +140,14 @@ public class RandomLevelGenerator : LevelGenerator
                     curr_row.Add(tile);
 
                     if (prev_vertex != null)
-                        cells.AddEdge(tile, prev_vertex.GetValueOrDefault(), 1);
+                        cells.AddEdge(tile, prev_vertex.GetValueOrDefault());
 
                     prev_vertex = tile;
                 }
 
                 if (prev_row != null)
                     for (int i = 0; i < prev_row.Count; ++i)
-                        cells.AddEdge(prev_row[i], curr_row[i], 1);
+                        cells.AddEdge(prev_row[i], curr_row[i]);
 
                 prev_row = curr_row;
             }
@@ -243,7 +243,7 @@ public class RandomLevelGenerator : LevelGenerator
                         continue;
                     }
 
-                    foreach (Edge<Vec2i, int> edge in cells.GetEdges(tile))
+                    foreach (Edge<Vec2i> edge in cells.GetEdges(tile))
                     {
                         // if the connection leads to a vertex outside of the room, keep it
                         if (!room.Contains(edge.To))
@@ -252,7 +252,7 @@ public class RandomLevelGenerator : LevelGenerator
                         else if (!builder.HasWall(edge.To) && room.Contains(edge.To))
                         {
                             cells.RemoveVertex(edge.To);
-                            cells.AddEdge(tile, leader, 1);
+                            cells.AddEdge(tile, leader);
                         }
                         // otherwise, sever the edge
                         else
@@ -290,13 +290,14 @@ public class RandomLevelGenerator : LevelGenerator
                 {
                     if (roomLeader1 != roomLeader2 && !gRouteCosts.ContainsEdge(roomLeader1, roomLeader2))
                     {
-                        CSGraph.Algorithms.Dijkstra(cells, roomLeader1, out var costs, out var routes);
+                        //CSGraph.Algorithms.Dijkstra(cells, roomLeader1, out var costs, out var routes);
+                        List<Vec2i> path = GetPath(cells, roomLeader1, roomLeader2);
 
-                        if (costs[roomLeader2] == int.MaxValue)
+                        if (path.Count == 0)
                             throw new Exception();
 
-                        gRouteCosts.AddEdge(roomLeader1, roomLeader2, costs[roomLeader2]);
-                        List<Vec2i> path = CSGraph.Algorithms.ShortestPath(routes, roomLeader2);
+                        gRouteCosts.AddEdge(roomLeader1, roomLeader2, path.Count);
+                        //List<Vec2i> path = CSGraph.Algorithms.ShortestPath(routes, roomLeader2);
                         gRoutes.AddEdge(roomLeader1, roomLeader2, path);
                     }
                 }
@@ -390,6 +391,55 @@ public class RandomLevelGenerator : LevelGenerator
         }
 
         return false;
+    }
+
+    private List<Vec2i> GetPath(Graph<Vec2i> g, Vec2i from, Vec2i to)
+    {
+        Queue<Vec2i> toVisit = new();
+        HashSet<Vec2i> visited = new();
+        Dictionary<Vec2i, Vec2i?> predecessors = new();
+
+        predecessors[from] = null;
+        toVisit.Enqueue(from);
+
+        while(toVisit.Count > 0)
+        {
+            Vec2i curr = toVisit.Dequeue();
+            visited.Add(curr);
+
+            foreach (Vec2i neighbor in g.GetNeighbors(curr))
+            {
+                if (visited.Contains(neighbor))
+                    continue;
+
+                if (toVisit.Contains(neighbor))
+                    continue;
+
+                predecessors[neighbor] = curr;
+
+                if (neighbor == to)
+                {
+                    Vec2i v = to;
+                    List<Vec2i> path = new();
+                    path.Add(to);
+
+                    while (predecessors[v] != null)
+                    {
+                        path.Add(predecessors[v].GetValueOrDefault());
+                        v = predecessors[v].GetValueOrDefault();
+                    }
+
+                    path.Reverse();
+                    return path;
+                }
+                else
+                {
+                    toVisit.Enqueue(neighbor);
+                }
+            }
+        }
+
+        return new List<Vec2i>();
     }
 
     private bool DoesOverlap(Region room)

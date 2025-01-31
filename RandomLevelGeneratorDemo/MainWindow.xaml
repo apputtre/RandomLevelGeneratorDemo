@@ -45,8 +45,8 @@
                 <StackPanel Orientation="Vertical">
                     <Label Content="Parameters" HorizontalAlignment="Center"/>
                     <StackPanel>
-                        <Slider Name="LevelWidthSlider" Template="{StaticResource ParameterSlider}" Tag="Level Width" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelWidth}" Minimum="0" Maximum="50"/>
-                        <Slider Name="LevelHeightSlider" Template="{StaticResource ParameterSlider}" Tag="Level Height" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelHeight}" Minimum="0" Maximum="50"/>
+                        <Slider Name="LevelWidthSlider" Template="{StaticResource ParameterSlider}" Tag="Level Width" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelWidth}" Minimum="0" Maximum="100"/>
+                        <Slider Name="LevelHeightSlider" Template="{StaticResource ParameterSlider}" Tag="Level Height" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelHeight}" Minimum="0" Maximum="100"/>
                         <Slider Name="NumRoomsSlider" Template="{StaticResource ParameterSlider}" Tag="Number of Rooms" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=NumRooms}" Minimum="0" Maximum="25"/>
 
                         <Border Margin="4" BorderThickness="1" BorderBrush="Black">

@@ -111,14 +111,14 @@ public partial class MainWindow : Window
             Stopwatch timer = new();
             timer.Start();
             await Task.Run(() => levelGenerator.Generate());
-            timer.Stop();
 
             levelViewer.Level = levelBuilder.Level;
             seedTextBox.Text = levelGenerator.Seed.ToString();
             levelViewer.UpdateLevelView();
+            timer.Stop();
             statusLabel.Content = $"Done ({Math.Round(timer.Elapsed.TotalMicroseconds / 1000.0, 2)} ms)";
         }
-        catch(Exception e)
+        catch(Exception)
         {
             MessageBox.Show("A level generation error has occurred.");
             statusLabel.Content = "Done";

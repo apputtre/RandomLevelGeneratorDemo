@@ -46,10 +46,15 @@ public struct Vec2i
 
     public static bool operator==(Vec2i v1, Vec2i v2)
     {
-        return v1.Equals(v2);
+        return v1.X == v2.X && v1.Y == v2.Y;
     }
     public static bool operator!=(Vec2i v1, Vec2i v2)
     {
-        return !v1.Equals(v2);
+        return !(v1 == v2);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
     }
 }
