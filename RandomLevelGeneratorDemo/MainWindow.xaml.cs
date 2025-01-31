@@ -78,10 +78,9 @@ public partial class MainWindow : Window
         levelViewer = (LevelViewer)FindName("Viewer");
         seedTextBox = (TextBox)FindName("SeedTextBox");
 
-        levelViewer.LevelWidth = levelGenerator.GetParameters().Width;
-        levelViewer.LevelHeight = levelGenerator.GetParameters().Height;
-
-        levelViewer.UpdateViewBorder();
+        ((Slider)FindName("LevelWidthSlider")).Value = 25;
+        ((Slider)FindName("LevelHeightSlider")).Value = 25;
+        ((Slider)FindName("NumRoomsSlider")).Value = 10;
     }
 
     private void GenerateButton_Click(object sender, RoutedEventArgs e)
