@@ -25,37 +25,43 @@ public partial class MainWindow : Window
     private TextBox seedTextBox;
     private bool manualSeeding = false;
 
-    private int _levelWidth;
-    private int _levelHeight;
-    private int _numRooms;
+    public static readonly DependencyProperty LevelWidthProperty = DependencyProperty.Register(
+        name: "LevelWidth",
+        propertyType: typeof(int),
+        ownerType: typeof(MainWindow),
+        typeMetadata: new FrameworkPropertyMetadata(
+            propertyChangedCallback: new PropertyChangedCallback(OnLevelWidthChanged)
+        ));
+
+    public static readonly DependencyProperty LevelHeightProperty = DependencyProperty.Register(
+        name: "LevelHeight",
+        propertyType: typeof(int),
+        ownerType: typeof(MainWindow),
+        typeMetadata: new FrameworkPropertyMetadata(
+            propertyChangedCallback: new PropertyChangedCallback(OnLevelHeightChanged)
+        ));
+
+    public static readonly DependencyProperty NumRoomsProperty = DependencyProperty.Register(
+        name: "NumRooms",
+        propertyType: typeof(int),
+        ownerType: typeof(MainWindow)
+        );
+
 
     public int LevelWidth
     {
-        get => _levelWidth;
-        set
-        {
-            _levelWidth = value;
-            levelViewer.LevelWidth = _levelWidth;
-            levelViewer.UpdateViewBorder();
-        }
+        get => (int)GetValue(LevelWidthProperty);
+        set => SetValue(LevelWidthProperty, value);
     }
     public int LevelHeight
     {
-        get => _levelHeight;
-        set
-        {
-            _levelHeight = value;
-            levelViewer.LevelHeight = _levelHeight;
-            levelViewer.UpdateViewBorder();
-        }
+        get => (int)GetValue(LevelHeightProperty);
+        set => SetValue(LevelHeightProperty, value);
     }
-    public int NumRooms
+    public int NumRooms 
     {
-        get => _numRooms;
-        set
-        {
-            _numRooms = value;
-        }
+        get => (int)GetValue(NumRoomsProperty);
+        set => SetValue(NumRoomsProperty, value);
     }
 
     public class TestContext
@@ -78,9 +84,9 @@ public partial class MainWindow : Window
         levelViewer = (LevelViewer)FindName("Viewer");
         seedTextBox = (TextBox)FindName("SeedTextBox");
 
-        ((Slider)FindName("LevelWidthSlider")).Value = 25;
-        ((Slider)FindName("LevelHeightSlider")).Value = 25;
-        ((Slider)FindName("NumRoomsSlider")).Value = 10;
+        LevelWidth = 25;
+        LevelHeight = 25;
+        NumRooms = 10;
     }
 
     private void GenerateButton_Click(object sender, RoutedEventArgs e)
@@ -106,7 +112,7 @@ public partial class MainWindow : Window
             if (manualSeeding)
                 levelGenerator.NextSeed = int.Parse(seedTextBox.Text);
 
-            levelGenerator.SetParameters(new LevelParameters(_levelWidth, _levelHeight, _numRooms));
+            levelGenerator.SetParameters(new LevelParameters(LevelWidth, LevelHeight, NumRooms));
 
             Stopwatch timer = new();
             timer.Start();
@@ -125,6 +131,20 @@ public partial class MainWindow : Window
         }
 
         generateButton.IsEnabled = true;
+    }
+    private static void OnLevelWidthChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        MainWindow mainWindow = (MainWindow)d;
+
+        mainWindow.levelViewer.LevelWidth = (int) e.NewValue;
+        mainWindow.levelViewer.UpdateViewBorder();
+    }
+    private static void OnLevelHeightChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        MainWindow mainWindow = (MainWindow)d;
+
+        mainWindow.levelViewer.LevelHeight = (int) e.NewValue;
+        mainWindow.levelViewer.UpdateViewBorder();
     }
 
     private void SeedTextBox_TextChanged(object sender, TextChangedEventArgs e)

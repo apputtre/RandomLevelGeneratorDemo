@@ -36,7 +36,11 @@ public class LevelViewer : FrameworkElement
         _children = new(this);
         _children.Add(levelView);
         _children.Add(viewBorder);
-        _level = level;
+
+        if (level == null)
+            _level = new();
+        else
+            _level = level;
 
         Uri tilesetUri = new Uri("C:\\Users\\Revch\\src\\RandomLevelGeneratorDemo\\RandomLevelGeneratorDemo\\assets\\tileset.png");
         _tileset = new BitmapImage(tilesetUri);
