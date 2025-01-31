@@ -25,12 +25,52 @@ public partial class MainWindow : Window
     private TextBox seedTextBox;
     private bool manualSeeding = false;
 
+    private int _levelWidth;
+    private int _levelHeight;
+    private int _numRooms;
+
+    public int LevelWidth
+    {
+        get => _levelWidth;
+        set
+        {
+            _levelWidth = value;
+            levelViewer.LevelWidth = _levelWidth;
+            levelViewer.UpdateViewBorder();
+        }
+    }
+    public int LevelHeight
+    {
+        get => _levelHeight;
+        set
+        {
+            _levelHeight = value;
+            levelViewer.LevelHeight = _levelHeight;
+            levelViewer.UpdateViewBorder();
+        }
+    }
+    public int NumRooms
+    {
+        get => _numRooms;
+        set
+        {
+            _numRooms = value;
+        }
+    }
+
+    public class TestContext
+    {
+        public int X { get; set; }
+    }
+
     public MainWindow()
     {
         InitializeComponent();
 
         levelBuilder = new();
         levelGenerator = new(levelBuilder);
+
+        DataContext = new TestContext();
     }
 
     public void OnLoad(object sender, EventArgs e)
@@ -67,50 +107,25 @@ public partial class MainWindow : Window
             if (manualSeeding)
                 levelGenerator.NextSeed = int.Parse(seedTextBox.Text);
 
+            levelGenerator.SetParameters(new LevelParameters(_levelWidth, _levelHeight, _numRooms));
+
             Stopwatch timer = new();
             timer.Start();
             await Task.Run(() => levelGenerator.Generate());
             timer.Stop();
-            statusLabel.Content = $"Done ({Math.Round(timer.Elapsed.TotalMicroseconds / 1000.0, 2)} ms)";
+
             levelViewer.Level = levelBuilder.Level;
-            levelViewer.UpdateLevelView();
             seedTextBox.Text = levelGenerator.Seed.ToString();
-            Console.WriteLine($"Level Width: {levelGenerator.GetParameters().Width}");
-            Console.WriteLine($"Level Height: {levelGenerator.GetParameters().Height}");
+            levelViewer.UpdateLevelView();
+            statusLabel.Content = $"Done ({Math.Round(timer.Elapsed.TotalMicroseconds / 1000.0, 2)} ms)";
         }
         catch(Exception e)
         {
             MessageBox.Show("A level generation error has occurred.");
             statusLabel.Content = "Done";
         }
+
         generateButton.IsEnabled = true;
-    }
-
-    private void LevelWidthSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        levelViewer.LevelWidth = (int) e.NewValue;
-        levelViewer.UpdateViewBorder();
-
-        LevelParameters currParams = levelGenerator.GetParameters();
-        LevelParameters newParams = currParams with { Width = (int)e.NewValue };
-        levelGenerator.SetParameters(newParams);
-    }
-
-    private void LevelHeightSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        levelViewer.LevelHeight = (int) e.NewValue;
-        levelViewer.UpdateViewBorder();
-
-        LevelParameters currParams = levelGenerator.GetParameters();
-        LevelParameters newParams = currParams with { Height = (int)e.NewValue };
-        levelGenerator.SetParameters(newParams);
-    }
-
-    private void NumRoomsSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        LevelParameters currParams = levelGenerator.GetParameters();
-        LevelParameters newParams = currParams with { NumRooms = (int)e.NewValue };
-        levelGenerator.SetParameters(newParams);
     }
 
     private void SeedTextBox_TextChanged(object sender, TextChangedEventArgs e)
