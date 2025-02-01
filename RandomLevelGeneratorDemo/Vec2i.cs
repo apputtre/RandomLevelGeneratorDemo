@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace RandomLevelGeneratorDemo;
 
@@ -42,6 +43,23 @@ public struct Vec2i
     public static Vec2i operator-(Vec2i v1, Vec2i v2)
     {
         return new(v1.X - v2.X, v1.Y - v2.Y);
+    }
+
+    public static Vec2i operator*(Vec2i v1, int val)
+    {
+        return new Vec2i(v1.X * val, v1.Y * val);
+    }
+    public static Vec2i operator/(Vec2i v1, int val)
+    {
+        return new Vec2i(v1.X / val, v1.Y / val);
+    }
+    public static Vec2i operator*(Vec2i v1, double val)
+    {
+        return new Vec2i((int) (v1.X * val), (int) (v1.Y * val));
+    }
+    public static Vec2i operator/(Vec2i v1, double val)
+    {
+        return new Vec2i((int) (v1.X / val), (int) (v1.Y / val));
     }
 
     public static bool operator==(Vec2i v1, Vec2i v2)
