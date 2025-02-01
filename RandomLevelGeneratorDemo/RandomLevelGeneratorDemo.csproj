@@ -8,4 +8,12 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="assets\tileset.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\tileset.png" />
+  </ItemGroup>
+
 </Project>

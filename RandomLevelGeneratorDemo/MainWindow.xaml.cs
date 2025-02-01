@@ -21,7 +21,7 @@ public partial class MainWindow : Window
 {
     private LevelViewer levelViewer;
     private LevelBuilder levelBuilder;
-    private RandomLevelGenerator levelGenerator;
+    private SteinerLevelGenerator levelGenerator;
     private TextBox seedTextBox;
     private bool manualSeeding = false;
 

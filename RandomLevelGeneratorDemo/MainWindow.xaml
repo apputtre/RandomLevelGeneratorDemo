@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RandomLevelGeneratorDemo"
         mc:Ignorable="d"
         Name="mainWindow"
-        Title="Random Level Generation Demo" Height="450" Width="800" Loaded="OnLoad"
+        Title="Random Level Generation Demo" Loaded="OnLoad"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         >
 
@@ -40,46 +40,47 @@
         </Grid.RowDefinitions>
 
         <local:LevelViewer x:Name="Viewer" Focusable="True"/>
-        <Border BorderThickness="1" Margin="4" BorderBrush="Black">
-            <Grid Width ="200" HorizontalAlignment="Left" VerticalAlignment="Center" Background="White" Margin="40,0">
-                <StackPanel Orientation="Vertical">
-                    <Label Content="Parameters" HorizontalAlignment="Center"/>
-                    <StackPanel>
-                        <Slider Name="LevelWidthSlider" Template="{StaticResource ParameterSlider}" Tag="Level Width" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelWidth}" Minimum="0" Maximum="100"/>
-                        <Slider Name="LevelHeightSlider" Template="{StaticResource ParameterSlider}" Tag="Level Height" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelHeight}" Minimum="0" Maximum="100"/>
-                        <Slider Name="NumRoomsSlider" Template="{StaticResource ParameterSlider}" Tag="Number of Rooms" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=NumRooms}" Minimum="0" Maximum="25"/>
 
-                        <Border Margin="4" BorderThickness="1" BorderBrush="Black">
+            <StackPanel HorizontalAlignment="Left" Margin="40 40 0 0">
+                <Border BorderThickness="1" BorderBrush="Black" Margin="0 0 0 20">
+                    <Grid Width ="200"  Background="White">
+                        <StackPanel Orientation="Vertical">
+                            <Label Content="Parameters" HorizontalAlignment="Center"/>
                             <StackPanel>
-                                <Label Content="Seed" HorizontalAlignment="Center"/>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <Label Content="Mode: "/>
-                                    <ComboBox HorizontalAlignment="Left" Width="75">
-                                        <ComboBoxItem Content="Auto" IsSelected="True" Selected="AutoSeedingSelected"/>
-                                        <ComboBoxItem Content="Manual" Selected="ManualSeedingSelected"/>
-                                    </ComboBox>
-                                </StackPanel>
-                                <Grid>
-                                    <TextBox Name="SeedTextBox" IsReadOnly="True" TextChanged="SeedTextBox_TextChanged" Margin="10"/>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-                        <Border Margin="4" BorderThickness="1" BorderBrush="Black">
-                            <StackPanel>
-                                <Label Content="Method" HorizontalAlignment="Center"/>
-                                <ComboBox Margin="4">
-                                    <ComboBoxItem Content="Steiner Tree"/>
-                                    <ComboBoxItem Content="Random Spanning Tree"/>
-                                </ComboBox>
-                            </StackPanel>
-                        </Border>
+                                <Slider Name="LevelWidthSlider" Template="{StaticResource ParameterSlider}" Tag="Level Width" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelWidth}" Minimum="0" Maximum="100"/>
+                                <Slider Name="LevelHeightSlider" Template="{StaticResource ParameterSlider}" Tag="Level Height" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelHeight}" Minimum="0" Maximum="100"/>
+                                <Slider Name="NumRoomsSlider" Template="{StaticResource ParameterSlider}" Tag="Number of Rooms" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=NumRooms}" Minimum="0" Maximum="25"/>
 
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Button Grid.Row="0" Name="GenerateButton" Content="Generate" Height="40" Width="150" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="GenerateButton_Click" Margin="40"/>
-        <Label Grid.Row="0" Name="StatusLabel" Content="Status" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="40" FontSize="25"/>
+                                <Border Margin="4" BorderThickness="1" BorderBrush="Black">
+                                    <StackPanel>
+                                        <Label Content="Seed" HorizontalAlignment="Center"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                            <Label Content="Mode: "/>
+                                            <ComboBox HorizontalAlignment="Left" Width="75">
+                                                <ComboBoxItem Content="Auto" IsSelected="True" Selected="AutoSeedingSelected"/>
+                                                <ComboBoxItem Content="Manual" Selected="ManualSeedingSelected"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <Grid>
+                                            <TextBox Name="SeedTextBox" IsReadOnly="True" TextChanged="SeedTextBox_TextChanged" Margin="10"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                                <Border Margin="4" BorderThickness="1" BorderBrush="Black">
+                                    <StackPanel>
+                                        <Label Content="Method" HorizontalAlignment="Center"/>
+                                        <ComboBox Margin="4">
+                                            <ComboBoxItem Content="Steiner Tree" IsSelected="True"/>
+                                            <ComboBoxItem Content="Random Spanning Tree"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <Button Name="GenerateButton" Content="Generate" Height="40" Width="150" Click="GenerateButton_Click"/>
+            </StackPanel>
+        <Label Grid.Row="0" Name="StatusLabel" Content="Status" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="40" FontSize="25"/>
     </Grid>
 </Window>
