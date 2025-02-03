@@ -187,11 +187,16 @@ public class LevelViewer : FrameworkElement
 
     private void DrawWall(DrawingContext context, Vec2d pos)
     {
+        Random rand = new();
+        Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
+        ImageBrush brush = new(_wallTiles[rand.Next(6)]);
+        context.DrawRectangle(brush, null, r);
         /*
         Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
         context.DrawRectangle(Brushes.DarkGray, null, r);
         */
 
+        /*
         ImageBrush brush = new(_tileset);
         brush.ViewboxUnits = BrushMappingMode.Absolute;
 
@@ -208,6 +213,7 @@ public class LevelViewer : FrameworkElement
         brush.Viewbox = new Rect((int) dipX, (int) dipY, (int) dipW, (int) dipH);
 
         context.DrawRectangle(brush, null, new(pos.X, pos.Y, TileWidth, TileHeight));
+        */
 
         /*
         CroppedBitmap bitmapImage = new(_tileset,new Int32Rect(0, 0, 32, 32));
