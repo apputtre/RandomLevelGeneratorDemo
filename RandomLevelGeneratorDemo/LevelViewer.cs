@@ -23,6 +23,7 @@ public class LevelViewer : Canvas
     private List<CroppedBitmap> _floorTiles = new();
     private Camera _camera;
     private DispatcherTimer _inputTimer = new DispatcherTimer();
+    private System.Windows.Point _dragStart = new(int.MinValue, int.MinValue);
 
     private ViewBorder _viewBorder = new();
     private Image _levelRender = new();
@@ -292,6 +293,18 @@ public class LevelViewer : Canvas
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         Focus();
+        _dragStart = e.GetPosition(this);
+    }
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        base.OnMouseMove(e);
+
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            PanCamera(-(e.GetPosition(this).X - _dragStart.X), -(e.GetPosition(this).Y - _dragStart.Y));
+            _dragStart = e.GetPosition(this);
+        }
     }
 
     private void PanCamera(double dx, double dy)
