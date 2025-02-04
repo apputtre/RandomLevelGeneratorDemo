@@ -84,6 +84,9 @@ public partial class MainWindow : Window
         levelViewer = (LevelViewer)FindName("LevelViewer");
         seedTextBox = (TextBox)FindName("SeedTextBox");
 
+        Width = SystemParameters.WorkArea.Width * 0.75;
+        Height = SystemParameters.WorkArea.Height * 0.75;
+
         LevelWidth = 25;
         LevelHeight = 25;
         NumRooms = 10;
