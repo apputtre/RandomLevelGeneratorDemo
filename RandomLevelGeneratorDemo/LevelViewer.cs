@@ -250,19 +250,19 @@ public class LevelViewer : Canvas
         double dx = 0;
         double dy = 0;
 
-        if (Keyboard.IsKeyDown(Key.W))
+        if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up))
         {
             dy = -_cameraVelocity * dt;
         }
-        if (Keyboard.IsKeyDown(Key.S))
+        if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down))
         {
             dy = _cameraVelocity * dt;
         }
-        if (Keyboard.IsKeyDown(Key.D))
+        if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
         {
             dx = _cameraVelocity * dt;
         }
-        if (Keyboard.IsKeyDown(Key.A))
+        if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
         {
             dx = -_cameraVelocity * dt;
         }
