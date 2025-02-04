@@ -19,7 +19,7 @@ public class LevelViewer : Canvas
     private List<CroppedBitmap> _wallTiles = new();
     private List<CroppedBitmap> _floorTiles = new();
 
-    private _background = new();
+    private Rectangle _background = new();
     private DrawingVisual _viewBorder = new();
     private Image _levelView = new();
 
@@ -32,6 +32,7 @@ public class LevelViewer : Canvas
     public LevelViewer(Level? level)
     {
         Children.Add(_levelView);
+        //Children.Add(_background);
 
         _viewBorder.Transform = new MatrixTransform(Matrix.Identity);
         _levelView.RenderTransform = new MatrixTransform(Matrix.Identity);
@@ -77,14 +78,14 @@ public class LevelViewer : Canvas
     public void UpdateLevelView()
     {
         // draw the background
-        DrawingContext context = _background.RenderOpen();
-        context.DrawRectangle(Brushes.Black, null, new Rect(0, 0, ActualWidth, ActualHeight));
-        context.Close();
+        //DrawingContext context = _background.RenderOpen();
+        //context.DrawRectangle(Brushes.Black, null, new Rect(0, 0, ActualWidth, ActualHeight));
+        //context.Close();
 
         if (LevelWidth == 0 || LevelHeight == 0)
             return;
 
-        WriteableBitmap wBmp = new(
+        WriteableBitmap bmp = new(
             LevelWidth*32,
             LevelHeight*32,
             _tileset.DpiX,
@@ -97,11 +98,12 @@ public class LevelViewer : Canvas
         foreach (Vec2i tile in _level.Tiles.Keys)
         {
             if (_level.Tiles[tile] == TileType.Wall)
-                DrawWall(wBmp, new Vec2i(tile.X, tile.Y));
+                DrawWall(bmp, new Vec2i(tile.X, tile.Y));
             else if (_level.Tiles[tile] == TileType.Floor)
-                continue;
-                //DrawFloor(wBmp, new Vec2i((int)r.X, (int)r.Y));
+                DrawFloor(bmp, new Vec2i(tile.X, tile.Y));
         }
+
+        _levelView.Source = bmp;
     }
 
     public void CenterCamera()
@@ -192,8 +194,7 @@ public class LevelViewer : Canvas
     private void DrawWall(WriteableBitmap wBmp, Vec2i pos)
     {
         Random rand = new();
-        Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
-        CopyRegion(_wallTiles[rand.Next(6)], wBmp, new Vec2i(pos.X, pos.Y));
+        CopyRegion(_wallTiles[rand.Next(6)], wBmp, new Vec2i(pos.X*32, pos.Y*32));
         /*
         Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
         context.DrawRectangle(Brushes.DarkGray, null, r);
@@ -229,10 +230,10 @@ public class LevelViewer : Canvas
         context.DrawImage(_wallTiles[idx], r);
         */
     }
-    private void DrawFloor(DrawingContext context, Vec2d pos)
+    private void DrawFloor(WriteableBitmap wBmp, Vec2i pos)
     {
-        Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
-        context.DrawRectangle(Brushes.LightGray, null, r);
+        Random rand = new();
+        CopyRegion(_floorTiles[rand.Next(6)], wBmp, new Vec2i(pos.X*32, pos.Y*32));
 
         /*
         ImageBrush brush = new(_tileset);
