@@ -72,6 +72,6 @@
                 </Border>
                 <Button Name="GenerateButton" Content="Generate" Height="40" Width="150" Click="GenerateButton_Click"/>
             </StackPanel>
-        <Label Grid.Row="0" Name="StatusLabel" Content="Status" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="40" FontSize="25"/>
+        <Label Grid.Row="0" Name="StatusLabel" Content="" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="40" FontSize="25"/>
     </Grid>
 </Window>
