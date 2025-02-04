@@ -7,7 +7,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Controls;
 
 using Size = System.Windows.Size;
-using System.Security.Cryptography.X509Certificates;
+using Point = System.Drawing.Point;
+using System.Data;
+using System.Security.Policy;
 
 namespace RandomLevelGeneratorDemo;
 
@@ -19,11 +21,12 @@ public class LevelViewer : Canvas
     private BitmapImage _tileset;
     private List<CroppedBitmap> _wallTiles = new();
     private List<CroppedBitmap> _floorTiles = new();
+    private Camera _camera;
+    private DispatcherTimer _inputTimer = new DispatcherTimer();
 
     private ViewBorder _viewBorder = new();
     private Image _levelRender = new();
     private Grid _levelView = new();
-    private Canvas _borderRect = new();
 
     public const int TileHeight = 8;
     public const int TileWidth = 8;
@@ -49,11 +52,95 @@ public class LevelViewer : Canvas
         }
     }
 
+    private class Camera
+    {
+        private double _zoomFactor = 1.0;
+        private double _minZoom = 0;
+        private double _maxZoom = int.MaxValue;
+        private double _posX;
+        private double _posY;
+        private Rect _bounds = new Rect(double.MinValue, double.MinValue, double.MaxValue, double.MaxValue);
+        private FrameworkElement _subject;
+
+        public double PosX
+        {
+            get => _posX;
+            set
+            {
+                _posX = value;
+                UpdatePosition();
+            }
+        }
+
+        public double PosY
+        {
+            get => _posY;
+            set
+            {
+                _posY = value;
+                UpdatePosition();
+            }
+        }
+
+        public double ZoomFactor => _subject.RenderTransform.Value.M11;
+
+        public double MaxZoom { get => _maxZoom; set => _maxZoom = value; }
+        public double MinZoom { get => _minZoom; set => _minZoom = value; }
+        public Rect Bounds { get => _bounds; set { _bounds = value; EnforceBounds(); } }
+
+        public Camera(FrameworkElement subject)
+        {
+            _subject = subject;
+            _subject.RenderTransform = Transform.Identity;
+        }
+
+        public void ZoomAt(double posX, double posY, double factor)
+        {
+            Matrix tMat = _subject.RenderTransform.Value;
+
+            tMat.ScaleAt(factor, factor, posX, posY);
+
+            if (tMat.M11 > _maxZoom && factor > 1)
+                return;
+
+            if (tMat.M11 < _minZoom && factor < 1)
+                return;
+
+            _subject.RenderTransform = new MatrixTransform(tMat);
+
+            _posX = -tMat.OffsetX;
+            _posY = -tMat.OffsetY;
+
+            UpdatePosition();
+        }
+
+        private void UpdatePosition()
+        {
+            EnforceBounds();
+
+            Matrix tMat = _subject.RenderTransform.Value;
+            tMat.Translate(-_posX - tMat.OffsetX, -_posY - tMat.OffsetY);
+            _subject.RenderTransform = new MatrixTransform(tMat);
+        }
+        private void EnforceBounds()
+        {
+            if (_posX > _bounds.Right)
+                _posX = _bounds.Right;
+            if (_posX < _bounds.Left)
+                _posX = _bounds.Left;
+            if (_posY > _bounds.Bottom)
+                _posY = _bounds.Bottom;
+            if (_posY < _bounds.Top)
+                _posY = _bounds.Top;
+        }
+    }
+
     public LevelViewer(Level? level)
     {
         Background = Brushes.Black;
         VerticalAlignment = VerticalAlignment.Stretch;
         HorizontalAlignment = HorizontalAlignment.Stretch;
+        Focusable = true;
 
         RenderOptions.SetBitmapScalingMode(_levelRender, BitmapScalingMode.HighQuality);
         RenderOptions.SetEdgeMode(_levelRender, EdgeMode.Aliased);
@@ -71,6 +158,10 @@ public class LevelViewer : Canvas
 
         Children.Add(_levelView);
         Children.Add(new ViewBorder());
+
+        _camera = new(_levelView);
+        _camera.MaxZoom = 10;
+        _camera.MinZoom = 0.5;
 
         if (level == null)
             _level = new();
@@ -97,11 +188,10 @@ public class LevelViewer : Canvas
              )));
         }
 
-        DispatcherTimer inputTimer = new DispatcherTimer();
-        inputTimer.Tick += new EventHandler(CheckInput);
-        inputTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000 / 60);
+        _inputTimer.Tick += new EventHandler(CheckInput);
+        _inputTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000 / 60);
         _lastInputUpdateTicks = DateTime.Now.Ticks;
-        inputTimer.Start();
+        _inputTimer.Start();
     }
     public LevelViewer() : this(null) {}
 
@@ -136,7 +226,8 @@ public class LevelViewer : Canvas
     public void CenterCamera()
     {
         // n.b. This only works properly if the camera has not been zoomed yet
-        PanCamera(-ActualWidth / 2 + LevelWidth / 2 * TileWidth, -ActualHeight / 2 + LevelHeight / 2 * TileHeight);
+        _camera.PosX = -ActualWidth / 2 + LevelWidth * TileWidth * _camera.ZoomFactor / 2;
+        _camera.PosY = -ActualHeight / 2 + LevelHeight * TileHeight * _camera.ZoomFactor / 2;
     }
 
     public void UpdateViewBorder()
@@ -144,6 +235,10 @@ public class LevelViewer : Canvas
         _viewBorder.LevelWidth = LevelWidth;
         _viewBorder.LevelHeight = LevelHeight;
         _viewBorder.InvalidateVisual();
+    }
+    private void UpdateCameraBounds()
+    {
+        _camera.Bounds = new Rect(-RenderSize.Width * 2, -RenderSize.Height * 2, RenderSize.Width * 4, RenderSize.Height * 4);
     }
 
     private void CheckInput(object? sender, EventArgs e)
@@ -177,10 +272,13 @@ public class LevelViewer : Canvas
         _lastInputUpdateTicks = currentTicks;
     }
 
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    {
+        UpdateCameraBounds();
+    }
+
     protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
-        Matrix mat = _levelView.RenderTransform.Value;
-
         double zoom = 0;
 
         if (e.Delta > 0)
@@ -188,27 +286,18 @@ public class LevelViewer : Canvas
         else if (e.Delta < 0)
             zoom = -0.1;
 
-        mat.ScaleAt(1.0 + zoom, 1.0 + zoom, e.GetPosition(this).X, e.GetPosition(this).Y);
-
-        _levelView.RenderTransform = new MatrixTransform(mat);
+        _camera.ZoomAt(e.GetPosition(this).X, e.GetPosition(this).Y, 1.0 + zoom);
     }
 
-    /*
-    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    protected override void OnMouseDown(MouseButtonEventArgs e)
     {
-        base.OnRenderSizeChanged(sizeInfo);
+        Focus();
     }
-    */
 
     private void PanCamera(double dx, double dy)
     {
-        Matrix mat = _levelView.RenderTransform.Value;
-
-        mat.OffsetX -= dx;
-        mat.OffsetY -= dy;
-
-        _levelView.RenderTransform = new MatrixTransform(mat);
-        //_viewBorder.RenderTransform = new MatrixTransform(mat);
+        _camera.PosX += dx;
+        _camera.PosY += dy;
     }
 
     private void DrawWall(WriteableBitmap wBmp, Vec2i pos)

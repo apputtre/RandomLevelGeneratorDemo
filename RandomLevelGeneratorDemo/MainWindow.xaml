@@ -14,7 +14,7 @@
 
         <ControlTemplate TargetType="Slider" x:Key="CustomSlider">
             <StackPanel>
-                <TextBox HorizontalAlignment="Center" VerticalAlignment="Center" Width="40" Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, Path=Value}"/>
+                <TextBox TextChanged="TextBox_TextChanged"  HorizontalAlignment="Center" VerticalAlignment="Center" Width="40" Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, Path=Value}"/>
                 <Grid>
                     <Label HorizontalAlignment="Left" VerticalAlignment="Center" Content="{TemplateBinding Minimum}"/>
                     <Slider IsSnapToTickEnabled="True" Margin="25, 0, 25, 0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, Path=Value}" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"/>
@@ -62,7 +62,7 @@
                                             </ComboBox>
                                         </StackPanel>
                                         <Grid>
-                                            <TextBox Name="SeedTextBox" IsReadOnly="True" TextChanged="SeedTextBox_TextChanged" Margin="10"/>
+                                            <TextBox Name="SeedTextBox" IsReadOnly="True" Margin="10"/>
                                         </Grid>
                                     </StackPanel>
                                 </Border>

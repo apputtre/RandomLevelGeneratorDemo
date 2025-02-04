@@ -127,6 +127,7 @@ public partial class MainWindow : Window
 
             timer.Stop();
             statusLabel.Content = $"Done ({Math.Round(timer.Elapsed.TotalMicroseconds / 1000.0, 2)} ms)";
+            levelViewer.CenterCamera();
         }
         catch(Exception)
         {
@@ -151,21 +152,6 @@ public partial class MainWindow : Window
         mainWindow.levelViewer.UpdateViewBorder();
     }
 
-    private void SeedTextBox_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        if (!IsLoaded)
-            return;
-
-        string text = seedTextBox.Text;
-        string strippedText = Regex.Replace(text, "[^0-9]", "");
-
-        if (text != strippedText)
-        {
-            seedTextBox.Text = strippedText;
-            MessageBox.Show("Seeds must include only numeric characters.");
-        }
-    }
-
     private void AutoSeedingSelected(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded)
@@ -182,5 +168,20 @@ public partial class MainWindow : Window
 
         manualSeeding = true;
         seedTextBox.IsReadOnly = false;
+    }
+
+    private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (!IsLoaded)
+            return;
+
+        string text = ((TextBox)sender).Text;
+        string strippedText = Regex.Replace(text, "[^0-9]", "");
+
+        if (text != strippedText)
+        {
+            ((TextBox)sender).Text = strippedText;
+            MessageBox.Show("Please enter only numeric characters.");
+        }
     }
 }
