@@ -117,7 +117,7 @@ public class LevelViewer : Canvas
 
         private void UpdatePosition()
         {
-            EnforceBounds();
+            //EnforceBounds();
 
             Matrix tMat = _subject.RenderTransform.Value;
             tMat.Translate(-_posX - tMat.OffsetX, -_posY - tMat.OffsetY);
@@ -276,6 +276,12 @@ public class LevelViewer : Canvas
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {
         UpdateCameraBounds();
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.Key == Key.Space)
+            CenterCamera();
     }
 
     protected override void OnMouseWheel(MouseWheelEventArgs e)
