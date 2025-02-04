@@ -120,7 +120,9 @@ public partial class MainWindow : Window
 
             levelViewer.Level = levelBuilder.Level;
             seedTextBox.Text = levelGenerator.Seed.ToString();
+
             levelViewer.UpdateLevelView();
+
             timer.Stop();
             statusLabel.Content = $"Done ({Math.Round(timer.Elapsed.TotalMicroseconds / 1000.0, 2)} ms)";
         }

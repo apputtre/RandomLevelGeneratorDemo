@@ -2,28 +2,26 @@
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System;
 using System.Drawing;
-using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Globalization;
+
+using Size = System.Windows.Size;
 
 namespace RandomLevelGeneratorDemo;
 
-public class LevelViewer : FrameworkElement
+public class LevelViewer : Canvas
 {
-    private VisualCollection _children;
     private Level? _level;
     private long _lastInputUpdateTicks;
-    private double _cameraVelocity = 200;
+    private double _cameraVelocity = 300;
     private BitmapImage _tileset;
-    private DrawingVisual levelView = new();
-    private DrawingVisual viewBorder = new();
-    private DrawingVisual background = new();
     private List<CroppedBitmap> _wallTiles = new();
     private List<CroppedBitmap> _floorTiles = new();
+
+    private _background = new();
+    private DrawingVisual _viewBorder = new();
+    private Image _levelView = new();
 
     public const int TileHeight = 8;
     public const int TileWidth = 8;
@@ -33,13 +31,10 @@ public class LevelViewer : FrameworkElement
 
     public LevelViewer(Level? level)
     {
-        _children = new(this);
-        _children.Add(background);
-        _children.Add(levelView);
-        _children.Add(viewBorder);
+        Children.Add(_levelView);
 
-        viewBorder.Transform = new MatrixTransform(Matrix.Identity);
-        levelView.Transform = new MatrixTransform(Matrix.Identity);
+        _viewBorder.Transform = new MatrixTransform(Matrix.Identity);
+        _levelView.RenderTransform = new MatrixTransform(Matrix.Identity);
 
         if (level == null)
             _level = new();
@@ -48,6 +43,10 @@ public class LevelViewer : FrameworkElement
 
         Uri tilesetUri = new Uri("C:\\Users\\Revch\\src\\RandomLevelGeneratorDemo\\RandomLevelGeneratorDemo\\assets\\tileset.png");
         _tileset = new BitmapImage(tilesetUri);
+
+        _levelView.Source = _tileset;
+        RenderOptions.SetBitmapScalingMode(_levelView, BitmapScalingMode.NearestNeighbor);
+        RenderOptions.SetEdgeMode(_levelView, EdgeMode.Aliased);
 
         for (int i = 0; i < 6; ++i)
         {
@@ -66,7 +65,6 @@ public class LevelViewer : FrameworkElement
              )));
         }
 
-        RenderOptions.SetBitmapScalingMode(_tileset, BitmapScalingMode.NearestNeighbor);
 
         DispatcherTimer inputTimer = new DispatcherTimer();
         inputTimer.Tick += new EventHandler(CheckInput);
@@ -79,22 +77,31 @@ public class LevelViewer : FrameworkElement
     public void UpdateLevelView()
     {
         // draw the background
-        DrawingContext context = background.RenderOpen();
+        DrawingContext context = _background.RenderOpen();
         context.DrawRectangle(Brushes.Black, null, new Rect(0, 0, ActualWidth, ActualHeight));
         context.Close();
 
+        if (LevelWidth == 0 || LevelHeight == 0)
+            return;
+
+        WriteableBitmap wBmp = new(
+            LevelWidth*32,
+            LevelHeight*32,
+            _tileset.DpiX,
+            _tileset.DpiY,
+            _tileset.Format,
+            null
+        );
+
         // draw the level view
-        context = levelView.RenderOpen();
         foreach (Vec2i tile in _level.Tiles.Keys)
         {
-            Rect r = TransformTile(tile);
-
             if (_level.Tiles[tile] == TileType.Wall)
-                DrawWall(context, new Vec2d(r.X, r.Y));
+                DrawWall(wBmp, new Vec2i(tile.X, tile.Y));
             else if (_level.Tiles[tile] == TileType.Floor)
-                DrawFloor(context, new Vec2d(r.X, r.Y));
+                continue;
+                //DrawFloor(wBmp, new Vec2i((int)r.X, (int)r.Y));
         }
-        context.Close();
     }
 
     public void CenterCamera()
@@ -105,7 +112,7 @@ public class LevelViewer : FrameworkElement
 
     public void UpdateViewBorder()
     {
-        DrawingContext context = viewBorder.RenderOpen();
+        DrawingContext context = _viewBorder.RenderOpen();
 
         double borderThickness = 4;
         context.DrawLine(new Pen(Brushes.Red, borderThickness), new(0 - borderThickness/2, 0 - borderThickness/2), new(0 - borderThickness/2, LevelHeight * TileHeight + borderThickness/2));
@@ -141,14 +148,15 @@ public class LevelViewer : FrameworkElement
             dx = -_cameraVelocity * dt;
         }
 
-        PanCamera(dx, dy);
+        if (dx != 0 || dy != 0)
+            PanCamera(dx, dy);
 
         _lastInputUpdateTicks = currentTicks;
     }
 
     protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
-        Matrix mat = levelView.Transform.Value;
+        Matrix mat = _levelView.RenderTransform.Value;
 
         double zoom = 0;
 
@@ -159,38 +167,33 @@ public class LevelViewer : FrameworkElement
 
         mat.ScaleAt(1.0 + zoom, 1.0 + zoom, e.GetPosition(this).X, e.GetPosition(this).Y);
 
-        levelView.Transform = new MatrixTransform(mat);
-        viewBorder.Transform = new MatrixTransform(mat);
+        _levelView.RenderTransform = new MatrixTransform(mat);
+        _viewBorder.Transform = new MatrixTransform(mat);
     }
 
+    /*
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {
         base.OnRenderSizeChanged(sizeInfo);
-
-        UpdateLevelView();
     }
+    */
 
-    private Rect TransformTile(Vec2i tile)
-    {
-        return new Rect(tile.X * TileWidth, tile.Y * TileHeight, TileWidth, TileHeight);
-    }
     private void PanCamera(double dx, double dy)
     {
-        Matrix mat = levelView.Transform.Value;
+        Matrix mat = _levelView.RenderTransform.Value;
 
         mat.OffsetX -= dx;
         mat.OffsetY -= dy;
 
-        levelView.Transform = new MatrixTransform(mat);
-        viewBorder.Transform = new MatrixTransform(mat);
+        _levelView.RenderTransform = new MatrixTransform(mat);
+        _viewBorder.Transform = new MatrixTransform(mat);
     }
 
-    private void DrawWall(DrawingContext context, Vec2d pos)
+    private void DrawWall(WriteableBitmap wBmp, Vec2i pos)
     {
         Random rand = new();
         Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
-        ImageBrush brush = new(_wallTiles[rand.Next(6)]);
-        context.DrawRectangle(brush, null, r);
+        CopyRegion(_wallTiles[rand.Next(6)], wBmp, new Vec2i(pos.X, pos.Y));
         /*
         Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
         context.DrawRectangle(Brushes.DarkGray, null, r);
@@ -251,6 +254,36 @@ public class LevelViewer : FrameworkElement
         */
     }
 
-    protected override int VisualChildrenCount => _children.Count;
-    protected override Visual GetVisualChild(int index) => _children[index];
+    public static void CopyRegion(BitmapSource from, WriteableBitmap to, Vec2i at)
+    {
+        // bytes per pixel
+        int fromBpp = from.Format.BitsPerPixel / 8;
+        int fromStride = (from.PixelWidth * from.Format.BitsPerPixel + 7) / 8;
+
+        byte[] pixelData = new byte[from.PixelHeight * fromStride];
+        from.CopyPixels(pixelData, fromStride, 0);
+
+        to.Lock();
+
+        for (int row = 0; row < from.PixelHeight; ++row)
+        {
+            for (int col = 0; col < from.PixelWidth; ++col)
+            {
+                unsafe
+                {
+                    int colorData = pixelData[col * fromBpp + row * fromStride] << 0;
+                    colorData |= pixelData[col * fromBpp + row * fromStride + 1] << 8;
+                    colorData |= pixelData[col * fromBpp + row * fromStride + 2] << 16;
+                    colorData |= pixelData[col * fromBpp + row * fromStride + 3] << 24;
+
+                    IntPtr pBuffer = to.BackBuffer;
+                    pBuffer += (col + (int) at.X) * to.Format.BitsPerPixel / 8 + (row + (int) at.Y) * to.BackBufferStride;
+                    *((int*)pBuffer) = colorData;
+                }
+            }
+        }
+
+        to.AddDirtyRect(new((int) at.X, (int) at.Y, from.PixelWidth, from.PixelHeight));
+        to.Unlock();
+    }
 }
