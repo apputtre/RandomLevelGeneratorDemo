@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Controls;
 
 using Size = System.Windows.Size;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RandomLevelGeneratorDemo;
 
@@ -19,9 +20,10 @@ public class LevelViewer : Canvas
     private List<CroppedBitmap> _wallTiles = new();
     private List<CroppedBitmap> _floorTiles = new();
 
-    private Rectangle _background = new();
-    private DrawingVisual _viewBorder = new();
-    private Image _levelView = new();
+    private ViewBorder _viewBorder = new();
+    private Image _levelRender = new();
+    private Grid _levelView = new();
+    private Canvas _borderRect = new();
 
     public const int TileHeight = 8;
     public const int TileWidth = 8;
@@ -29,13 +31,46 @@ public class LevelViewer : Canvas
     public int LevelWidth { get; set; }
     public int LevelHeight { get; set; }
 
+    private class ViewBorder : FrameworkElement
+    {
+        private double borderThickness;
+
+        public int LevelHeight { get; set; }
+        public int LevelWidth { get; set; }
+        public double BorderThickness { get => borderThickness; set => borderThickness = value; }
+
+
+        protected override void OnRender(DrawingContext context)
+        {
+            context.DrawLine(new Pen(Brushes.Red, borderThickness), new(0 - borderThickness/2, 0 - borderThickness/2), new(0 - borderThickness/2, LevelHeight * TileHeight + borderThickness/2));
+            context.DrawLine(new Pen(Brushes.Red, borderThickness), new(0 - borderThickness, LevelHeight * TileHeight + borderThickness/2), new(LevelWidth * TileWidth + borderThickness, LevelHeight * TileHeight + borderThickness/2));
+            context.DrawLine(new Pen(Brushes.Red, borderThickness), new(LevelWidth * TileWidth + borderThickness/2, LevelHeight * TileHeight + borderThickness/2), new(LevelWidth * TileWidth + borderThickness/2, 0 - borderThickness));
+            context.DrawLine(new Pen(Brushes.Red, borderThickness), new(LevelWidth * TileWidth + borderThickness/2, 0 - borderThickness/2), new(0 - borderThickness, 0 - borderThickness/2));
+        }
+    }
+
     public LevelViewer(Level? level)
     {
-        Children.Add(_levelView);
-        //Children.Add(_background);
+        Background = Brushes.Black;
+        VerticalAlignment = VerticalAlignment.Stretch;
+        HorizontalAlignment = HorizontalAlignment.Stretch;
 
-        _viewBorder.Transform = new MatrixTransform(Matrix.Identity);
-        _levelView.RenderTransform = new MatrixTransform(Matrix.Identity);
+        RenderOptions.SetBitmapScalingMode(_levelRender, BitmapScalingMode.HighQuality);
+        RenderOptions.SetEdgeMode(_levelRender, EdgeMode.Aliased);
+
+        _viewBorder.RenderTransform = new MatrixTransform(Matrix.Identity);
+        _levelRender.RenderTransform = new MatrixTransform(Matrix.Identity);
+
+        _viewBorder.BorderThickness = TileWidth * 1.5;
+
+        _levelRender.HorizontalAlignment = HorizontalAlignment.Left;
+        _levelRender.VerticalAlignment = VerticalAlignment.Top;
+
+        _levelView.Children.Add(_levelRender);
+        _levelView.Children.Add(_viewBorder);
+
+        Children.Add(_levelView);
+        Children.Add(new ViewBorder());
 
         if (level == null)
             _level = new();
@@ -44,10 +79,6 @@ public class LevelViewer : Canvas
 
         Uri tilesetUri = new Uri("C:\\Users\\Revch\\src\\RandomLevelGeneratorDemo\\RandomLevelGeneratorDemo\\assets\\tileset.png");
         _tileset = new BitmapImage(tilesetUri);
-
-        _levelView.Source = _tileset;
-        RenderOptions.SetBitmapScalingMode(_levelView, BitmapScalingMode.NearestNeighbor);
-        RenderOptions.SetEdgeMode(_levelView, EdgeMode.Aliased);
 
         for (int i = 0; i < 6; ++i)
         {
@@ -66,7 +97,6 @@ public class LevelViewer : Canvas
              )));
         }
 
-
         DispatcherTimer inputTimer = new DispatcherTimer();
         inputTimer.Tick += new EventHandler(CheckInput);
         inputTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000 / 60);
@@ -77,11 +107,6 @@ public class LevelViewer : Canvas
 
     public void UpdateLevelView()
     {
-        // draw the background
-        //DrawingContext context = _background.RenderOpen();
-        //context.DrawRectangle(Brushes.Black, null, new Rect(0, 0, ActualWidth, ActualHeight));
-        //context.Close();
-
         if (LevelWidth == 0 || LevelHeight == 0)
             return;
 
@@ -103,7 +128,9 @@ public class LevelViewer : Canvas
                 DrawFloor(bmp, new Vec2i(tile.X, tile.Y));
         }
 
-        _levelView.Source = bmp;
+        _levelRender.Source = bmp;
+        _levelRender.Width = TileWidth * LevelWidth;
+        _levelRender.Height = TileHeight * LevelHeight;
     }
 
     public void CenterCamera()
@@ -114,15 +141,9 @@ public class LevelViewer : Canvas
 
     public void UpdateViewBorder()
     {
-        DrawingContext context = _viewBorder.RenderOpen();
-
-        double borderThickness = 4;
-        context.DrawLine(new Pen(Brushes.Red, borderThickness), new(0 - borderThickness/2, 0 - borderThickness/2), new(0 - borderThickness/2, LevelHeight * TileHeight + borderThickness/2));
-        context.DrawLine(new Pen(Brushes.Red, borderThickness), new(0 - borderThickness, LevelHeight * TileHeight + borderThickness/2), new(LevelWidth * TileWidth + borderThickness, LevelHeight * TileHeight + borderThickness/2));
-        context.DrawLine(new Pen(Brushes.Red, borderThickness), new(LevelWidth * TileWidth + borderThickness/2, LevelHeight * TileHeight + borderThickness/2), new(LevelWidth * TileWidth + borderThickness/2, 0 - borderThickness));
-        context.DrawLine(new Pen(Brushes.Red, borderThickness), new(LevelWidth * TileWidth + borderThickness/2, 0 - borderThickness/2), new(0 - borderThickness, 0 - borderThickness/2));
-
-        context.Close();
+        _viewBorder.LevelWidth = LevelWidth;
+        _viewBorder.LevelHeight = LevelHeight;
+        _viewBorder.InvalidateVisual();
     }
 
     private void CheckInput(object? sender, EventArgs e)
@@ -170,7 +191,6 @@ public class LevelViewer : Canvas
         mat.ScaleAt(1.0 + zoom, 1.0 + zoom, e.GetPosition(this).X, e.GetPosition(this).Y);
 
         _levelView.RenderTransform = new MatrixTransform(mat);
-        _viewBorder.Transform = new MatrixTransform(mat);
     }
 
     /*
@@ -188,71 +208,18 @@ public class LevelViewer : Canvas
         mat.OffsetY -= dy;
 
         _levelView.RenderTransform = new MatrixTransform(mat);
-        _viewBorder.Transform = new MatrixTransform(mat);
+        //_viewBorder.RenderTransform = new MatrixTransform(mat);
     }
 
     private void DrawWall(WriteableBitmap wBmp, Vec2i pos)
     {
         Random rand = new();
         CopyRegion(_wallTiles[rand.Next(6)], wBmp, new Vec2i(pos.X*32, pos.Y*32));
-        /*
-        Rect r = new(pos.X, pos.Y, TileWidth, TileHeight);
-        context.DrawRectangle(Brushes.DarkGray, null, r);
-        */
-
-        /*
-        ImageBrush brush = new(_tileset);
-        brush.ViewboxUnits = BrushMappingMode.Absolute;
-
-        Random rand = new();
-
-        double pxX = rand.NextInt64(0, 6) * 32;
-        double pxY = 0;
-
-        double dipX = pxX / _tileset.DpiX * 96.0;
-        double dipY = pxY / _tileset.DpiY * 96.0;
-        double dipW = 32 / _tileset.DpiX * 96;
-        double dipH = 32 / _tileset.DpiY * 96;
-
-        brush.Viewbox = new Rect((int) dipX, (int) dipY, (int) dipW, (int) dipH);
-
-        context.DrawRectangle(brush, null, new(pos.X, pos.Y, TileWidth, TileHeight));
-        */
-
-        /*
-        CroppedBitmap bitmapImage = new(_tileset,new Int32Rect(0, 0, 32, 32));
-
-        //brush.Viewbox = _wallTiles[rand.Next(6)];
-
-        //context.DrawRectangle(brush, null, r);
-        Random rand = new();
-        int idx = rand.Next(6);
-        context.DrawImage(_wallTiles[idx], r);
-        */
     }
     private void DrawFloor(WriteableBitmap wBmp, Vec2i pos)
     {
         Random rand = new();
         CopyRegion(_floorTiles[rand.Next(6)], wBmp, new Vec2i(pos.X*32, pos.Y*32));
-
-        /*
-        ImageBrush brush = new(_tileset);
-        brush.ViewboxUnits = BrushMappingMode.Absolute;
-
-        Random rand = new();
-
-        double pxX = rand.NextInt64(0, 6) * 32;
-        double pxY = 32;
-
-        double dipX = pxX / _tileset.DpiX * 96.0;
-        double dipY = pxY / _tileset.DpiY * 96.0;
-        double dipW = 32 / _tileset.DpiX * 96;
-        double dipH = 32 / _tileset.DpiY * 96;
-
-        brush.Viewbox = new Rect(dipX, dipY, dipW, dipH);
-
-        context.DrawRectangle(brush, null, r);
-        */
     }
 
     public static void CopyRegion(BitmapSource from, WriteableBitmap to, Vec2i at)

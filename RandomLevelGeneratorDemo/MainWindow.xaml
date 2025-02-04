@@ -39,7 +39,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <local:LevelViewer x:Name="Viewer" Focusable="True"/>
+        <local:LevelViewer x:Name="LevelViewer"/>
 
             <StackPanel HorizontalAlignment="Left" Margin="40 40 0 0">
                 <Border BorderThickness="1" BorderBrush="Black" Margin="0 0 0 20">
@@ -64,15 +64,6 @@
                                         <Grid>
                                             <TextBox Name="SeedTextBox" IsReadOnly="True" TextChanged="SeedTextBox_TextChanged" Margin="10"/>
                                         </Grid>
-                                    </StackPanel>
-                                </Border>
-                                <Border Margin="4" BorderThickness="1" BorderBrush="Black">
-                                    <StackPanel>
-                                        <Label Content="Method" HorizontalAlignment="Center"/>
-                                        <ComboBox Margin="4">
-                                            <ComboBoxItem Content="Steiner Tree" IsSelected="True"/>
-                                            <ComboBoxItem Content="Random Spanning Tree"/>
-                                        </ComboBox>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

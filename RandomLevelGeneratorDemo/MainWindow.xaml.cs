@@ -81,12 +81,14 @@ public partial class MainWindow : Window
 
     public void OnLoad(object sender, EventArgs e)
     {
-        levelViewer = (LevelViewer)FindName("Viewer");
+        levelViewer = (LevelViewer)FindName("LevelViewer");
         seedTextBox = (TextBox)FindName("SeedTextBox");
 
         LevelWidth = 25;
         LevelHeight = 25;
         NumRooms = 10;
+
+        levelViewer.CenterCamera();
     }
 
     private void GenerateButton_Click(object sender, RoutedEventArgs e)

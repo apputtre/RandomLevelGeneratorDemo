@@ -17,4 +17,8 @@
     <Resource Include="assets\tileset.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
+
 </Project>
