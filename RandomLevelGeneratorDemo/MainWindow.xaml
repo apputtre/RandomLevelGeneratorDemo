@@ -47,9 +47,9 @@
                         <StackPanel Orientation="Vertical">
                             <Label Content="Parameters" HorizontalAlignment="Center"/>
                             <StackPanel>
-                                <Slider Name="LevelWidthSlider" Template="{StaticResource ParameterSlider}" Tag="Level Width" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelWidth}" Minimum="0" Maximum="100"/>
-                                <Slider Name="LevelHeightSlider" Template="{StaticResource ParameterSlider}" Tag="Level Height" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelHeight}" Minimum="0" Maximum="100"/>
-                                <Slider Name="NumRoomsSlider" Template="{StaticResource ParameterSlider}" Tag="Number of Rooms" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=NumRooms}" Minimum="0" Maximum="50"/>
+                                <Slider Name="LevelWidthSlider" ToolTip="The width of the level to generate, in tiles" Template="{StaticResource ParameterSlider}" Tag="Level Width" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelWidth}" Minimum="0" Maximum="100"/>
+                                <Slider Name="LevelHeightSlider" ToolTip="The height of the level to generate, in tiles" Template="{StaticResource ParameterSlider}" Tag="Level Height" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=LevelHeight}" Minimum="0" Maximum="100"/>
+                                <Slider Name="NumRoomsSlider" ToolTip="The number of rooms that the level will attempt to generate" Template="{StaticResource ParameterSlider}" Tag="Number of Rooms" Value="{Binding ElementName=mainWindow, Mode=TwoWay, Path=NumRooms}" Minimum="0" Maximum="50"/>
 
                                 <Border Margin="4" BorderThickness="1" BorderBrush="Black">
                                     <StackPanel>
@@ -57,12 +57,12 @@
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                             <Label Content="Mode: "/>
                                             <ComboBox HorizontalAlignment="Left" Width="75">
-                                                <ComboBoxItem Content="Auto" IsSelected="True" Selected="AutoSeedingSelected"/>
-                                                <ComboBoxItem Content="Manual" Selected="ManualSeedingSelected"/>
+                                                <ComboBoxItem Content="Auto" ToolTip="Seed will be automatically generated" IsSelected="True" Selected="AutoSeedingSelected"/>
+                                                <ComboBoxItem Content="Manual" ToolTip="Allow user to input seed" Selected="ManualSeedingSelected"/>
                                             </ComboBox>
                                         </StackPanel>
                                         <Grid>
-                                            <TextBox Name="SeedTextBox" IsReadOnly="True" Margin="10"/>
+                                            <TextBox Name="SeedTextBox" ToolTip="The value that will be used to seed the random number generator" IsReadOnly="True" Margin="10"/>
                                         </Grid>
                                     </StackPanel>
                                 </Border>
