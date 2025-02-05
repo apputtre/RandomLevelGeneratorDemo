@@ -10,6 +10,7 @@ using Size = System.Windows.Size;
 using Point = System.Drawing.Point;
 using System.Data;
 using System.Security.Policy;
+using System.Reflection;
 
 namespace RandomLevelGeneratorDemo;
 
@@ -169,7 +170,8 @@ public class LevelViewer : Canvas
         else
             _level = level;
 
-        Uri tilesetUri = new Uri("C:\\Users\\Revch\\src\\RandomLevelGeneratorDemo\\RandomLevelGeneratorDemo\\assets\\tileset.png");
+        Uri tilesetUri = new Uri("pack://application:,,,/assets/tileset.png", UriKind.Absolute);
+
         _tileset = new BitmapImage(tilesetUri);
 
         for (int i = 0; i < 6; ++i)
