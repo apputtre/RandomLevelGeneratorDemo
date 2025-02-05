@@ -194,7 +194,6 @@ public class LevelViewer : Canvas
         _inputTimer.Tick += new EventHandler(CheckInput);
         _inputTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000 / 60);
         _lastInputUpdateTicks = DateTime.Now.Ticks;
-        _inputTimer.Start();
     }
     public LevelViewer() : this(null) {}
 
@@ -313,6 +312,20 @@ public class LevelViewer : Canvas
             PanCamera(-(e.GetPosition(this).X - _dragStart.X), -(e.GetPosition(this).Y - _dragStart.Y));
             _dragStart = e.GetPosition(this);
         }
+    }
+
+    protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
+    {
+        base.OnGotKeyboardFocus(e);
+
+        _inputTimer.Start();
+    }
+
+    protected override void OnLostKeyboardFocus(KeyboardFocusChangedEventArgs e)
+    {
+        base.OnLostKeyboardFocus(e);
+
+        _inputTimer.Stop();
     }
 
     private void PanCamera(double dx, double dy)
