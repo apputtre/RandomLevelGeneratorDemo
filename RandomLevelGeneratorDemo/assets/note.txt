@@ -1,0 +1,4 @@
+﻿These assets, part of the Dungeon Crawl Stone Soup tileset, are licensed under CC0.
+
+The full tileset may be found here:
+https://code.google.com/archive/p/crawl-tiles/
