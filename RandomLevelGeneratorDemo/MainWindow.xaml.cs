@@ -87,8 +87,8 @@ public partial class MainWindow : Window
         Width = SystemParameters.WorkArea.Width * 0.75;
         Height = SystemParameters.WorkArea.Height * 0.75;
 
-        LevelWidth = 25;
-        LevelHeight = 25;
+        LevelWidth = 50;
+        LevelHeight = 50;
         NumRooms = 10;
 
         levelViewer.CenterCamera();
